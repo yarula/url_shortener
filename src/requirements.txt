@@ -1,0 +1,9 @@
+aiohttp==3.8.1
+cchardet==2.1.4
+asyncpg==0.18.3
+ujson==1.35
+uvloop==0.11.2
+urllib3==1.25.9
+dataclasses_json==0.5.2
+aiohttp_autoreload
+aiohttp_apispec

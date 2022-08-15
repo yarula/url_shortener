@@ -1,0 +1,46 @@
+version: '3.4'
+
+networks:
+  shortener_net:
+    external:
+      name: shortener_net
+
+services:
+  shortener.db:
+    container_name: shortener.db
+    image: postgres:11.5
+    volumes:
+    - ./deploy/sql/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+    - ./deploy/sql/data.sql:/docker-entrypoint-initdb.d/2-data.sql
+    networks:
+      - shortener_net
+    ports:
+      - 7432:5432
+    healthcheck:
+      test: pg_isready
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    environment:
+      - POSTGRES_PASSWORD=shortener_api
+      - POSTGRES_USER=shortener_api
+      - POSTGRES_DB=shortener
+      - DB_EXTENSION=uuid-ossp
+
+  shortener.api:
+    container_name: shortener.api
+    build:
+      context: .
+      dockerfile: ./deploy/api.Dockerfile
+    links:
+      - shortener.db
+    networks:
+      - shortener_net
+    ports:
+      - 8888:80
+    environment:
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=shortener.db
+      - POSTGRES_PASSWORD=shortener_api
+      - POSTGRES_USER=shortener_api
+      - POSTGRES_DB=shortener
