@@ -14,8 +14,6 @@ async def encode(request: web.Request) -> web.Response:
     data = await request.json()
     orig_url = data.get("url")
 
-    logging.error("Trying to encode url: '%s'", orig_url)
-
     if not Link.is_valid(orig_url):
         logging.error("bad link format")
         return {"error": "bad link format"}, 400
@@ -46,16 +44,16 @@ async def resolve(request: web.Request) -> web.Response:
 
         if not encoded_link:
             return {"error": "link not foound"}, 404
-        else:
-            await Event.publish(
-                connection=connection,
-                type=EventType.LINK_RESOLVED,
-                payload={
-                    "short_code": encoded_link.short_code,
-                    "orig_url": encoded_link.orig_url,
-                    "link_id": encoded_link.id
-                }
-            )
+
+        await Event.publish(
+            connection=connection,
+            type=EventType.LINK_RESOLVED,
+            payload={
+                "short_code": encoded_link.short_code,
+                "orig_url": encoded_link.orig_url,
+                "link_id": encoded_link.id
+            }
+        )
 
     return web.Response(status=302, headers={"Location": encoded_link.orig_url})
 
