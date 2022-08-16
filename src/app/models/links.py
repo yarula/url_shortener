@@ -110,9 +110,8 @@ class Link:
     @staticmethod
     def is_valid(url: str) -> bool:
         try:
-
             parse_result = urlparse(url)
-        except IndexError:
+        except Exception:
             return False
 
         return parse_result.netloc and parse_result.scheme
